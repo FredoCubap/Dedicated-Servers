@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Servidor Hytale — Guía Completa</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --surface2: #1a1e29;
+    --border: #252a38;
+    --accent: #00e5a0;
+    --accent2: #7c6af7;
+    --accent3: #f7a26a;
+    --text: #e2e8f0;
+    --muted: #6b7a99;
+    --danger: #ff5e5e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  .hero {
+    padding: 60px 40px 40px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(0,229,160,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 20px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .hero-sub {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 560px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stack-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .pill {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .pill-green { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.25); }
+  .pill-purple { background: rgba(124,106,247,0.12); color: var(--accent2); border: 1px solid rgba(124,106,247,0.25); }
+  .pill-orange { background: rgba(247,162,106,0.12); color: var(--accent3); border: 1px solid rgba(247,162,106,0.25); }
+
+  .toc {
+    padding: 20px 40px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .toc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-right: 8px;
+  }
+
+  .toc a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    transition: all 0.2s;
+  }
+
+  .toc a:hover { color: var(--accent); border-color: var(--accent); }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 40px 80px;
+  }
+
+  .section {
+    margin-bottom: 56px;
+    animation: fadeIn 0.4s ease both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.2);
+    padding: 3px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  h2 { font-size: 22px; font-weight: 800; }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent3);
+    margin: 24px 0 10px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+
+  p {
+    color: #b0bdd4;
+    font-size: 15px;
+    margin-bottom: 12px;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+
+  .code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .copy-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .copy-btn.copied { color: var(--accent); border-color: var(--accent); }
+
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .c-green { color: var(--accent); }
+  .c-purple { color: var(--accent2); }
+  .c-orange { color: var(--accent3); }
+  .c-red { color: var(--danger); }
+  .c-muted { color: var(--muted); }
+
+  .box {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-size: 14px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .box-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .box p { margin: 0; font-size: 14px; }
+
+  .box-tip { background: rgba(0,229,160,0.07); border: 1px solid rgba(0,229,160,0.2); }
+  .box-warn { background: rgba(247,162,106,0.07); border: 1px solid rgba(247,162,106,0.2); }
+  .box-info { background: rgba(124,106,247,0.07); border: 1px solid rgba(124,106,247,0.2); }
+
+  .box-tip p { color: #a0e8cc; }
+  .box-warn p { color: #e8c8a0; }
+  .box-info p { color: #c0b8f0; }
+
+  .steps {
+    counter-reset: steps;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  .steps li {
+    counter-increment: steps;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    color: #b0bdd4;
+  }
+
+  .steps li::before {
+    content: counter(steps);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Architecture diagram — nuevo diseño con CSS puro */
+  .arch-diagram {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 32px 24px;
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+  }
+
+  .arch-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .arch-node {
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .arch-node small {
+    display: block;
+    font-size: 10px;
+    font-weight: 400;
+    margin-top: 2px;
+    opacity: 0.7;
+  }
+
+  .node-green { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.3); }
+  .node-purple { background: rgba(124,106,247,0.12); color: var(--accent2); border: 1px solid rgba(124,106,247,0.3); }
+  .node-orange { background: rgba(247,162,106,0.12); color: var(--accent3); border: 1px solid rgba(247,162,106,0.3); }
+  .node-muted { background: rgba(107,122,153,0.12); color: var(--muted); border: 1px solid rgba(107,122,153,0.25); }
+
+  .arch-arrow-h {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .arch-arrow-h span { font-size: 9px; color: var(--muted); opacity: 0.7; white-space: nowrap; }
+
+  .arch-connector-v {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+    position: relative;
+    margin: 0 auto;
+  }
+
+  .arch-connector-v::after {
+    content: '▼';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    color: var(--muted);
+  }
+
+  .arch-connector-branch {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 48px;
+    position: relative;
+    padding-top: 28px;
+    width: 100%;
+  }
+
+  .arch-connector-branch::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 14px;
+    background: var(--border);
+  }
+
+  .arch-connector-branch::after {
+    content: '';
+    position: absolute;
+    top: 14px;
+    left: calc(50% - 60px);
+    width: 120px;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .arch-branch-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    position: relative;
+  }
+
+  .arch-branch-item::before {
+    content: '';
+    width: 1px;
+    height: 14px;
+    background: var(--border);
+  }
+
+  .arch-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: var(--bg);
+    padding: 4px 10px;
+    border: 1px dashed var(--border);
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  /* RAM visual */
+  .ram-bar {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 16px 0;
+  }
+
+  .ram-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  .ram-track {
+    height: 28px;
+    background: var(--bg);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    border: 1px solid var(--border);
+  }
+
+  .ram-seg {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    transition: filter 0.2s;
+  }
+
+  .ram-seg:hover { filter: brightness(1.3); }
+
+  .ram-sys { background: rgba(124,106,247,0.4); color: var(--accent2); width: 3.75%; }
+  .ram-xfce { background: rgba(247,162,106,0.3); color: var(--accent3); width: 3.75%; }
+  .ram-zt { background: rgba(0,229,160,0.2); color: var(--accent); width: 1.25%; }
+  .ram-hytale { background: rgba(0,229,160,0.5); color: #fff; flex: 1; }
+
+  .ram-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .ram-legend-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ram-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+  .footer {
+    text-align: center;
+    padding: 32px;
+    border-top: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: rgba(255,255,255,0.06);
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--accent3);
+  }
+
+  @media (max-width: 600px) {
+    .hero, .container { padding: 24px 20px; }
+    .toc { padding: 16px 20px; }
+    .arch-connector-branch { gap: 24px; }
+    .arch-connector-branch::after { left: calc(50% - 40px); width: 80px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-tag">Documentación técnica</div>
+  <h1>Servidor autónomo <span>Hytale</span><br>en Debian — Guía Completa</h1>
+  <p class="hero-sub">// PC dedicada → Ubicación remota → ZeroTier + RustDesk + SSH</p>
+  <div class="stack-pills">
+    <span class="pill pill-green">Debian 12 Bookworm</span>
+    <span class="pill pill-purple">ZeroTier</span>
+    <span class="pill pill-orange">Adoptium Temurin 21</span>
+    <span class="pill pill-green">RustDesk</span>
+    <span class="pill pill-purple">Screen / tmux</span>
+    <span class="pill pill-orange">SSH</span>
+  </div>
+</div>
+
+<div class="toc">
+  <span class="toc-label">índice</span>
+  <a href="#s1">01 · Arquitectura</a>
+  <a href="#s2">02 · Instalar Debian</a>
+  <a href="#s3">03 · Post-instalación</a>
+  <a href="#s4">04 · Java (Adoptium)</a>
+  <a href="#s5">05 · ZeroTier</a>
+  <a href="#s6">06 · RustDesk</a>
+  <a href="#s7">07 · SSH</a>
+  <a href="#s8">08 · Servidor Hytale</a>
+  <a href="#s9">09 · RAM & arranque</a>
+</div>
+
+<div class="container">
+
+  <!-- ARQUITECTURA -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Arquitectura del sistema</h2>
+    </div>
+    <p>Así queda el sistema completo una vez montado. La PC servidor vive en una ubicación con buena conexión, enchufada permanentemente. El administrador gestiona todo de forma remota. Los jugadores se conectan a través de la red virtual de ZeroTier desde cualquier lugar.</p>
+
+    <div class="arch-diagram">
+      <div class="arch-label">Red ZeroTier Virtual</div>
+
+      <div class="arch-row">
+        <div class="arch-node node-green">
+          PC Debian
+          <small>Servidor · Ubicación remota</small>
+        </div>
+        <div class="arch-arrow-h">
+          ←── SSH + RustDesk ──→
+          <span>administración remota</span>
+        </div>
+        <div class="arch-node node-purple">
+          Administrador
+          <small>Gestión y mantenimiento</small>
+        </div>
+      </div>
+
+      <div class="arch-connector-v"></div>
+
+      <div class="arch-node node-muted" style="margin-top:10px">
+        Hytale Server
+        <small>corriendo en segundo plano</small>
+      </div>
+
+      <div class="arch-connector-branch">
+        <div class="arch-branch-item">
+          <div class="arch-node node-orange">
+            Jugador A
+            <small>ZeroTier · remoto</small>
+          </div>
+        </div>
+        <div class="arch-branch-item">
+          <div class="arch-node node-orange">
+            Jugador B
+            <small>ZeroTier · remoto</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="box box-tip">
+      <span class="box-icon">💡</span>
+      <p>Los jugadores que estén físicamente en la misma red que el servidor pueden conectarse directamente por LAN sin usar ZeroTier, liberando esos slots de la red virtual para los que están en ubicaciones remotas.</p>
+    </div>
+  </div>
+
+  <!-- INSTALAR DEBIAN -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Instalar Debian 12 Netinst</h2>
+    </div>
+    <p>Descarga la imagen <strong>netinst</strong> (no la completa) desde <code>debian.org/distrib/netinst</code>. Pesa ~400MB y te deja instalar solo lo que necesitas.</p>
+
+    <div class="box box-warn">
+      <span class="box-icon">⚠️</span>
+      <p>La netinst necesita internet durante la instalación para bajar paquetes. Conecta la PC por cable ethernet al router, no por WiFi, para minimizar pérdida de ancho de banda y evitar cortes durante la instalación.</p>
+    </div>
+
+    <h3>// Durante el instalador</h3>
+    <ol class="steps">
+      <li>⚠️ Se recomienda conocimiento previo instalando Debian ⚠️</li>
+      <li>Idioma, zona horaria, teclado → a tu gusto</li>
+      <li>Particionado → <strong>Guided - use entire disk</strong> (simple y suficiente)</li>
+      <li>Cuando pregunte el mirror de Debian → elige <strong>deb.debian.org</strong></li>
+      <li>En la pantalla <strong>Software selection</strong> → desmarca TODO excepto <strong>"standard system utilities"</strong>. Nada de entornos gráficos aquí.</li>
+      <li>Instala GRUB en el disco principal cuando lo pida</li>
+      <li>Reinicia → arranca en terminal (TTY). Perfecto.</li>
+    </ol>
+  </div>
+
+  <!-- POST INSTALACIÓN -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Post-instalación del sistema</h2>
+    </div>
+    <p>Lo primero es corregir el <code>sources.list</code> y actualizar. Aquí está el contenido exacto para Debian 12:</p>
+
+    <h3>// /etc/apt/sources.list</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">sources.list</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-green">deb</span> http://deb.debian.org/debian bookworm main contrib non-free <span class="c-orange">non-free-firmware</span>
+<span class="c-green">deb</span> http://security.debian.org/debian-security bookworm-security main contrib non-free <span class="c-orange">non-free-firmware</span>
+<span class="c-green">deb</span> http://deb.debian.org/debian bookworm-updates main contrib non-free <span class="c-orange">non-free-firmware</span></pre>
+    </div>
+
+    <div class="box box-tip">
+      <span class="box-icon">💡</span>
+      <p><code>non-free-firmware</code> al final de cada línea cubre drivers propietarios que no están disponibles en los repositorios oficiales de Debian por defecto. Inclúyelo aunque no creas necesitarlo, evita sorpresas con hardware como ciertas tarjetas WiFi.</p>
+    </div>
+
+    <h3>// Actualizar e instalar esenciales</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-muted"># Actualizar sistema completo</span>
+<span class="c-green">sudo</span> apt update && <span class="c-green">sudo</span> apt upgrade -y
+
+<span class="c-muted"># Instalar herramientas básicas</span>
+<span class="c-green">sudo</span> apt install -y curl wget gnupg apt-transport-https \
+  screen nano ufw openssh-server</pre>
+    </div>
+
+    <h3>// Instalar XFCE mínimo</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-green">sudo</span> apt install -y xfce4 xfce4-terminal thunar
+
+<span class="c-muted"># Que el sistema arranque en modo texto por defecto (sin gráficos)</span>
+<span class="c-green">sudo</span> systemctl set-default multi-user.target</pre>
+    </div>
+
+    <p>Cuando quieras entrar al escritorio gráfico manualmente, desde la terminal escribe:</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-green">startx</span>   <span class="c-muted"># abre XFCE</span>
+<span class="c-muted"># Para volver al modo texto: cierra sesión desde XFCE normalmente</span></pre>
+    </div>
+  </div>
+
+  <!-- JAVA -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Java — Adoptium Temurin 21</h2>
+    </div>
+    <p>Debian netinst no trae Java. Hay que agregar el repositorio de Adoptium manualmente ya que no está en los repos oficiales de Debian.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-muted"># 1. Dependencias necesarias</span>
+<span class="c-green">sudo</span> apt install -y wget apt-transport-https gnupg
+
+<span class="c-muted"># 2. Agregar la clave GPG de Adoptium</span>
+wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public \
+  | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/adoptium.gpg
+
+<span class="c-muted"># 3. Agregar el repositorio</span>
+echo <span class="c-orange">"deb https://packages.adoptium.net/artifactory/deb bookworm main"</span> \
+  | sudo tee /etc/apt/sources.list.d/adoptium.list
+
+<span class="c-muted"># 4. Actualizar e instalar Temurin 21</span>
+<span class="c-green">sudo</span> apt update
+<span class="c-green">sudo</span> apt install -y temurin-21-jdk
+
+<span class="c-muted"># 5. Verificar</span>
+java -version</pre>
+    </div>
+
+    <div class="box box-tip">
+      <span class="box-icon">✅</span>
+      <p>La verificación debe responder algo como <code>OpenJDK Runtime Environment Temurin-21.x.x</code>. Si ves eso, está perfecto.</p>
+    </div>
+  </div>
+
+  <!-- ZEROTIER -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>ZeroTier — Red LAN virtual</h2>
+    </div>
+    <p>ZeroTier reemplaza a Radmin VPN (que solo es Windows). Crea una red virtual privada donde todos los dispositivos se ven como si estuvieran en la misma LAN. Completamente gratis hasta 25 dispositivos.</p>
+
+    <div class="box box-info">
+      <span class="box-icon">🌐</span>
+      <p>Necesitas crearte una cuenta en <code>my.zerotier.com</code> para administrar la red. Solo el administrador necesita cuenta. Los jugadores solo instalan el cliente e ingresan el ID de red, sin registro.</p>
+    </div>
+
+    <h3>// Instalar ZeroTier en Debian (servidor)</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-muted"># Instalador oficial de ZeroTier</span>
+curl -s https://install.zerotier.com | sudo bash
+
+<span class="c-muted"># Unirse a tu red (reemplaza XXXXXXXXXX con tu Network ID)</span>
+<span class="c-green">sudo</span> zerotier-cli join <span class="c-orange">XXXXXXXXXX</span>
+
+<span class="c-muted"># Ver estado de la conexión</span>
+<span class="c-green">sudo</span> zerotier-cli status
+
+<span class="c-muted"># Ver la IP virtual asignada</span>
+<span class="c-green">sudo</span> zerotier-cli listnetworks</pre>
+    </div>
+
+    <h3>// Asignar IP fija al servidor (desde el panel web)</h3>
+    <ol class="steps">
+      <li>Ve a <code>my.zerotier.com</code> → entra a tu red</li>
+      <li>En la sección <strong>Members</strong> verás el servidor listado</li>
+      <li>Haz click en el dispositivo y en el campo <strong>Managed IPs</strong> escribe la IP que quieras, por ejemplo <code>10.147.17.1</code></li>
+      <li>Esa IP nunca cambiará para ese dispositivo. Los jugadores siempre conectarán al servidor con esa dirección.</li>
+    </ol>
+
+    <h3>// En Windows (para los jugadores)</h3>
+    <p>Descargan el instalador desde <code>zerotier.com/download</code>, lo instalan, abren ZeroTier en la bandeja del sistema, hacen click en <strong>Join Network</strong> y pegan el ID de la red. El administrador desde el panel web aprueba el dispositivo y listo.</p>
+
+    <div class="box box-tip">
+      <span class="box-icon">💡</span>
+      <p>ZeroTier intenta siempre conexión P2P directa entre dispositivos. Solo usa servidores relay como fallback si la conexión directa falla. Esto minimiza la latencia.</p>
+    </div>
+  </div>
+
+  <!-- RUSTDESK -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>RustDesk — Control remoto gráfico</h2>
+    </div>
+    <p>RustDesk es el TeamViewer open source y gratuito. Permite ver y controlar el escritorio XFCE de la PC servidor como si estuvieras frente a ella. Funciona perfecto sobre la red de ZeroTier sin exponer nada al internet público.</p>
+
+    <div class="box box-info">
+      <span class="box-icon">ℹ️</span>
+      <p>RustDesk NO está en los repositorios oficiales de Debian. Hay que descargar el <code>.deb</code> directamente desde su GitHub.</p>
+    </div>
+
+    <h3>// Instalar en Debian</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-muted"># Descargar el .deb más reciente desde GitHub</span>
+<span class="c-muted"># Verifica la versión actual en: github.com/rustdesk/rustdesk/releases</span>
+wget https://github.com/rustdesk/rustdesk/releases/latest/download/rustdesk-<span class="c-orange">VERSION</span>-x86_64.deb
+
+<span class="c-muted"># Instalar</span>
+<span class="c-green">sudo</span> apt install -y ./rustdesk-<span class="c-orange">VERSION</span>-x86_64.deb
+
+<span class="c-muted"># Iniciar RustDesk (necesita estar corriendo para recibir conexiones)</span>
+rustdesk &</pre>
+    </div>
+
+    <h3>// Cómo usarlo</h3>
+    <ol class="steps">
+      <li>En la PC servidor: abre RustDesk, te muestra un <strong>ID</strong> y una <strong>contraseña</strong></li>
+      <li>En tu PC: descarga RustDesk para Windows desde <code>rustdesk.com</code></li>
+      <li>Ingresa el ID de la PC servidor en el campo de conexión y la contraseña cuando la pida</li>
+      <li>Ves el escritorio XFCE completo. Mouse, teclado, todo funciona.</li>
+    </ol>
+
+    <div class="box box-tip">
+      <span class="box-icon">💡</span>
+      <p>Para que RustDesk esté siempre disponible sin tener que abrirlo manualmente, configúralo como servicio del sistema con <code>sudo systemctl enable rustdesk</code> después de instalarlo.</p>
+    </div>
+  </div>
+
+  <!-- SSH -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2>SSH — Acceso rápido por terminal</h2>
+    </div>
+    <p>SSH ya lo instalaste en el paso 03. Es la red de seguridad: si RustDesk falla por cualquier razón, siempre puedes entrar por SSH y arreglarlo desde la terminal.</p>
+
+    <h3>// Configurar y activar SSH en la PC servidor</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-muted"># Activar e iniciar el servicio SSH</span>
+<span class="c-green">sudo</span> systemctl enable ssh
+<span class="c-green">sudo</span> systemctl start ssh
+
+<span class="c-muted"># Verificar que está corriendo</span>
+<span class="c-green">sudo</span> systemctl status ssh
+
+<span class="c-muted"># Ver la IP virtual de ZeroTier (la usarás para conectarte)</span>
+<span class="c-green">sudo</span> zerotier-cli listnetworks</pre>
+    </div>
+
+    <h3>// Conectarte desde tu PC (Windows)</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">cmd / powershell</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-muted"># Windows 10/11 ya trae SSH cliente nativo</span>
+<span class="c-muted"># Reemplaza con tu usuario de Debian y la IP de ZeroTier del servidor</span>
+ssh <span class="c-orange">tuusuario</span>@<span class="c-green">10.147.17.1</span>
+
+<span class="c-muted"># La primera vez te pregunta si confías en el host, escribes "yes"</span>
+<span class="c-muted"># Luego te pide la contraseña de tu usuario en Debian</span></pre>
+    </div>
+
+    <div class="box box-warn">
+      <span class="box-icon">⚠️</span>
+      <p>SSH funciona a través de ZeroTier sin necesidad de abrir puertos en el router. Todo el tráfico va por la red virtual cifrada de ZeroTier. No hay que tocar la configuración del router.</p>
+    </div>
+  </div>
+
+  <!-- SERVIDOR HYTALE -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2>Servidor Hytale — Migración y arranque</h2>
+    </div>
+    <p>Los archivos del servidor de Hytale son exactamente los mismos en Windows y Linux. Solo cambia el script de arranque: el <code>.bat</code> se reemplaza por un <code>.sh</code> equivalente.</p>
+
+    <h3>// Estructura de archivos</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">estructura</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-green">~/hytale-server/</span>
+├── <span class="c-orange">HytaleServer.jar</span>       <span class="c-muted"># el jar principal</span>
+├── <span class="c-orange">Assets.zip</span>             <span class="c-muted"># assets del servidor</span>
+├── <span class="c-purple">start.sh</span>               <span class="c-muted"># script de arranque (reemplaza el .bat)</span>
+├── server.properties      <span class="c-muted"># configuración del server</span>
+└── worlds/                <span class="c-muted"># mundos guardados</span></pre>
+    </div>
+
+    <h3>// De .bat a .sh — conversión de tu script</h3>
+    <p>Tu <code>.bat</code> original en Windows:</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">windows · start.bat (original)</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-muted">@echo off</span>
+<span class="c-muted">title El_Papu_Server</span>
+java -jar HytaleServer.jar --assets ..\Assets.zip --accept-early-plugins --auth-mode offline
+<span class="c-muted">pause</span></pre>
+    </div>
+
+    <p>Equivalente en Linux (<code>start.sh</code>):</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">linux · start.sh</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-purple">#!/bin/bash</span>
+<span class="c-muted"># Servidor Hytale</span>
+<span class="c-muted"># -Xms: RAM mínima al arrancar | -Xmx: RAM máxima permitida</span>
+
+java -Xms4G -Xmx7G \
+  -jar HytaleServer.jar \
+  --assets ../Assets.zip \
+  --accept-early-plugins \
+  --auth-mode offline</pre>
+    </div>
+
+    <div class="box box-info">
+      <span class="box-icon">ℹ️</span>
+      <p>En Linux las rutas usan <code>/</code> en vez de <code>\</code>. El <code>@echo off</code>, <code>title</code> y <code>pause</code> del <code>.bat</code> no tienen equivalente necesario en Linux, simplemente se omiten. El título de la sesión lo gestiona <code>screen</code>.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-muted"># Darle permisos de ejecución (solo una vez)</span>
+chmod +x start.sh</pre>
+    </div>
+
+    <h3>// Arrancar el servidor con Screen</h3>
+    <p>Screen permite que el servidor corra en segundo plano y no muera cuando cierras la sesión SSH o la terminal. Es como minimizar sin cerrar.</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-muted"># Iniciar el servidor dentro de una sesión screen llamada "hytale"</span>
+screen -S hytale ./start.sh
+
+<span class="c-muted"># Salir de screen SIN matar el servidor</span>
+<span class="c-purple">Ctrl+A</span>  →  <span class="c-purple">D</span>
+
+<span class="c-muted"># Volver a ver la consola del servidor</span>
+screen -r hytale
+
+<span class="c-muted"># Ver todas las sesiones screen activas</span>
+screen -ls
+
+<span class="c-muted"># Detener el servidor (dentro de screen)</span>
+<span class="c-purple">Ctrl+C</span></pre>
+    </div>
+
+    <div class="box box-tip">
+      <span class="box-icon">💡</span>
+      <p>Flujo típico de administración remota: conectas por SSH → <code>screen -r hytale</code> para ver la consola en vivo → revisas que todo esté bien → <code>Ctrl+A D</code> para salir de screen sin afectar el servidor → cierras SSH. El servidor sigue corriendo sin interrupciones.</p>
+    </div>
+  </div>
+
+  <!-- RAM -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <h2>Distribución de RAM y arranque automático</h2>
+    </div>
+
+    <div class="ram-bar">
+      <div class="ram-label">DISTRIBUCIÓN DE 8GB DDR3 (EJEMPLO CON HARDWARE DE REFERENCIA)</div>
+      <div class="ram-track">
+        <div class="ram-seg ram-sys" title="Debian ~300MB">S</div>
+        <div class="ram-seg ram-xfce" title="XFCE ~300MB (solo cuando lo abres)">X</div>
+        <div class="ram-seg ram-zt" title="ZeroTier ~100MB">Z</div>
+        <div class="ram-seg ram-hytale" title="Hytale ~7GB disponibles">Hytale Server ≈ 7GB</div>
+      </div>
+      <div class="ram-legend">
+        <span class="ram-legend-item"><span class="ram-dot" style="background:rgba(124,106,247,0.6)"></span>Debian base ~300MB</span>
+        <span class="ram-legend-item"><span class="ram-dot" style="background:rgba(247,162,106,0.5)"></span>XFCE ~300MB (solo si está abierto)</span>
+        <span class="ram-legend-item"><span class="ram-dot" style="background:rgba(0,229,160,0.4)"></span>ZeroTier ~100MB</span>
+        <span class="ram-legend-item"><span class="ram-dot" style="background:rgba(0,229,160,0.7)"></span>Hytale disponible ~7GB</span>
+      </div>
+    </div>
+
+    <div class="box box-info">
+      <span class="box-icon">ℹ️</span>
+      <p>Ajusta los valores <code>-Xms</code> y <code>-Xmx</code> en el <code>start.sh</code> según la RAM real de tu PC. Regla general: deja al menos 700MB–1GB libres para el sistema operativo y reserva el resto para el servidor.</p>
+    </div>
+
+    <h3>// Arranque automático del servidor con systemd</h3>
+    <p>Para que el servidor de Hytale arranque solo cuando la PC enciende, sin que nadie tenga que hacer nada:</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-muted"># Crear el archivo de servicio systemd</span>
+sudo nano /etc/systemd/system/hytale.service</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">hytale.service</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-purple">[Unit]</span>
+<span class="c-green">Description</span>=Servidor Hytale
+<span class="c-green">After</span>=network.target zerotierone.service
+
+<span class="c-purple">[Service]</span>
+<span class="c-green">Type</span>=forking
+<span class="c-green">User</span>=<span class="c-orange">tuusuario</span>
+<span class="c-green">WorkingDirectory</span>=<span class="c-orange">/home/tuusuario/hytale-server</span>
+<span class="c-green">ExecStart</span>=/usr/bin/screen -dmS hytale ./start.sh
+<span class="c-green">ExecStop</span>=/usr/bin/screen -S hytale -X quit
+<span class="c-green">Restart</span>=on-failure
+
+<span class="c-purple">[Install]</span>
+<span class="c-green">WantedBy</span>=multi-user.target</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+      </div>
+      <pre><span class="c-muted"># Activar el servicio para que arranque con el sistema</span>
+<span class="c-green">sudo</span> systemctl daemon-reload
+<span class="c-green">sudo</span> systemctl enable hytale
+<span class="c-green">sudo</span> systemctl start hytale
+
+<span class="c-muted"># Ver estado</span>
+<span class="c-green">sudo</span> systemctl status hytale</pre>
+    </div>
+
+    <div class="box box-tip">
+      <span class="box-icon">🎯</span>
+      <p>Con esto la PC arranca, ZeroTier se conecta automáticamente, el servidor de Hytale arranca solo, y los jugadores pueden conectarse sin que nadie en la ubicación del servidor tenga que hacer absolutamente nada. La PC es completamente autónoma.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Debian 12 Bookworm · ZeroTier · Adoptium Temurin 21 · RustDesk · Screen · SSH
+</div>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ copiado';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'copiar';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
