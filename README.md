@@ -10,7 +10,7 @@ These guides focus on real-world scenarios: old laptops, limited budgets, remote
 
 | Game | OS | Stack | File |
 |------|----|-------|------|
-| Hytale | Debian 12 | ZeroTier · Adoptium Temurin 21 · RustDesk · SSH · Screen | [Ver guía](https://tuusuario.github.io/Dedicated-Servers/hytale_server-debian.html) |
+| Hytale | Debian 12 | ZeroTier · Adoptium Temurin 21 · RustDesk · SSH · Screen | [Ver guía](https://FredoCubap.github.io/Dedicated-Servers/hytale_server-debian.html) |
 
 > More guides coming soon.
 
